@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" class="inventory-page">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View All Inventory</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./firebase/auth-handler.js"></script>
+    <script type="module" src="./scripts/script.js"></script>
+</head>
+<body>
+    <header>
+        <button id="googleSignInBtn">Google Sign In</button><a id="emailSignIn" href="./sign-in.html"><button>Email Sign In</button></a><button id="signOutBtn">Sign Out</button>
+        <h1>View Inventory</h1>
+        <nav>
+            <a href="./index.html">Home</a>
+            <!-- <a href="./add-item.html">Add Item</a> -->
+            <a href="./orders.html">View Orders</a>
+            <a href="./inventory.html">Inventory</a>
+            <a href="./reports.html">Reports</a>
+        </nav>
+    </header>
+    <div class="order-table">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th colspan="5">
+                        <input type="text" id="searchInput" class="table-search-input" placeholder="Search by SKU, Name or Available...">
+                    </th>
+                </tr>
+                <tr>
+                    <th>Item</th>
+                    <th>SKU</th>
+                    <th>Location</th>
+                    <th>Bin</th>
+                    <th>Available</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-page-inventory-table">
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#dataTable tbody tr');
+
+        rows.forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            let rowText = '';
+            
+            // Combine text from all cells in the row
+            for (let cell of cells) {
+                rowText += cell.textContent.toLowerCase() + ' ';
+            }
+            
+            // Show or hide the row based on the search input
+            row.style.display = rowText.includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+</html>

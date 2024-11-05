@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" class="reports-page">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./scripts/script.js"></script>
+    <script type="module" src="./firebase/auth-handler.js"></script>
+
+</head>
+<body>
+    <header>
+        <button id="googleSignInBtn">Google Sign In</button><a id="emailSignIn" href="./sign-in.html"><button>Email Sign In</button></a><button id="signOutBtn">Sign Out</button>
+        <h1>Reports</h1>
+        <nav>
+            <a href="./index.html">Home</a>
+            <!-- <a href="./add-item.html">Add Item</a> -->
+            <a href="./orders.html">View Orders</a>
+            <a href="./inventory.html">Inventory</a>
+            <a href="./reports.html">Reports</a>
+        </nav>
+    </header>
+    <form action="">
+        <p>Select Report Type</p>
+        <select name="" id="reportSelector">
+            <option value="order-report">Order Report</option>
+            <!-- <option value="inventory-report">Inventory Report</option> -->
+        </select>
+        <p>From</p>
+<input type="date" name="startDate" id="startDate">
+<p>To</p>
+<input type="date" name="endDate" id="endDate">
+        <div class="button-area">
+            <button type="button" id="reportSubmitBtn">Submit</button>
+        </div>
+    </form>
+</body>
+</html>

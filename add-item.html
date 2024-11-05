@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" class="add-item-page">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add item</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./scripts/script.js" defer></script>
+    <script type="module" src="./firebase/auth-handler.js"></script>
+
+</head>
+<body>
+    <header>
+        <button id="googleSignInBtn">Google Sign In</button><a id="emailSignIn" href="./sign-in.html"><button>Email Sign In</button></a><button id="signOutBtn">Sign Out</button>
+        <h1>Add Item</h1>
+        <nav>
+            <a href="./index.html">Home</a>
+            <!-- <a href="./add-item.html">Add Item</a> -->
+            <a href="./orders.html">View Orders</a>
+            <a href="./inventory.html">Inventory</a>
+            <a href="./reports.html">Reports</a>
+        </nav>
+    </header>
+    <form id="myForm">
+        <p><em>Note:</em> If SKU is already in use, it will be overwritten with new data.</p>
+        <br>
+        <input type="text" placeholder="SKU" name="sku">
+        <input type="text" placeholder="Name" name="name">
+        <input type="text" placeholder="Location" name="location">
+        <input type="text" placeholder="Bin Number" name="binNumber">
+        <input type="number" placeholder="In Stock Quantity" name="availableQuantity">
+        <div class="button-area">
+            <button type="button" id="addItemSubmissionButton">Submit</button>
+        </div>
+    </form>
+    <!-- <script>
+        function saveFormAsJson() {
+            const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            const jsonObject = {
+                items: {} // Initialize the nested object
+            };
+    
+            formData.forEach((value, key) => {
+                // Check if the key starts with 'items['
+                if (key.startsWith('items[')) {
+                    const itemKey = key.replace('items[', '').replace(']', '');
+                    jsonObject.items[itemKey] = value; // Add to nested object
+                } else {
+                    jsonObject[key] = value; // Add to the main object
+                }
+            });
+    
+            const jsonString = JSON.stringify(jsonObject);
+            console.log(jsonString); // Output the JSON string
+            // You can replace this with code to save the JSON or send it to a server
+        }
+    </script> -->
+</body>
+</html>

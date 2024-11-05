@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" class="view-orders-page">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Order</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./scripts/script.js"></script>
+    <script type="module" src="./firebase/auth-handler.js"></script>
+
+</head>
+<body>
+    <header>
+        <button id="googleSignInBtn">Google Sign In</button><a id="emailSignIn" href="./sign-in.html"><button>Email Sign In</button></a><button id="signOutBtn">Sign Out</button>
+        <h1>View Order</h1>
+        <nav>
+            <a href="./index.html">Home</a>
+            <!-- <a href="./add-item.html">Add Item</a> -->
+            <a href="./orders.html">View Orders</a>
+            <a href="./inventory.html">Inventory</a>
+            <a href="./reports.html">Reports</a>
+        </nav>
+    </header>
+    <div id="order-data" class="order-table">
+
+    </div>
+</body>
+</html>

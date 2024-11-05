@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./firebase/email-sign-in-handler.js" defer></script>
+
+</head>
+<body class="">
+    <h1>Welcome to the TechStyles PO Tracking Tool</h1>
+    <div id="sign-in-credentials">
+        <form id="login-form">
+            <div>Please sign in</div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <br>
+            <button type="submit">Sign In</button>
+        </form>
+    
+        <p id="message"></p>
+    </div>
+    <div id="order-list-link">
+        <button id="signOutBtn">Sign Out</button>
+        <h2>Hi! Select Order List below to see your current orders.</h2>
+        <a href="./index.html">Take me home</a>
+    </div>
+</body>
+</html>

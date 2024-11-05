@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" class="bulk-upload-page">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add item</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./scripts/script.js" defer></script>
+    <script type="module" src="./firebase/auth-handler.js"></script>
+
+</head>
+<body>
+    <header>
+        <button id="googleSignInBtn">Google Sign In</button><a id="emailSignIn" href="./sign-in.html"><button>Email Sign In</button></a><button id="signOutBtn">Sign Out</button>
+        <h1>Bulk Upload</h1>
+        <nav>
+            <a href="./index.html">Home</a>
+            <!-- <a href="./add-item.html">Add Item</a> -->
+            <a href="./orders.html">View Orders</a>
+            <a href="./inventory.html">Inventory</a>
+            <a href="./reports.html">Reports</a>
+        </nav>
+    </header>
+    <form id="myForm">
+        <p><em>Note:</em> If SKU is already in use, it will be overwritten with new data. And don't use commas in your CSV.</p>
+        <textarea name="" id="bulkUploadTextArea" placeholder="sku,name,quantity" cols="70" rows="20"></textarea>
+        <div class="button-area">
+            <button id="bulkUploadSubmissionButton">Submit</button>
+        </div>
+    </form>
+</body>
+</html>

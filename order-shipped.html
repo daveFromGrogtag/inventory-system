@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" class="shipping-orders-page">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ship Order</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./scripts/script.js"></script>
+    <script type="module" src="./firebase/auth-handler.js"></script>
+
+</head>
+<body>
+    <header>
+        <button id="googleSignInBtn">Google Sign In</button><a id="emailSignIn" href="./sign-in.html"><button>Email Sign In</button></a><button id="signOutBtn">Sign Out</button>
+        <h1>View Order</h1>
+        <nav>
+            <a href="./index.html">Home</a>
+            <!-- <a href="./add-item.html">Add Item</a> -->
+            <a href="./orders.html">View Orders</a>
+            <a href="./inventory.html">Inventory</a>
+            <a href="./reports.html">Reports</a>
+        </nav>
+    </header>
+    <div class="order-table">
+        <div>
+            <input type="text" name="tracking-number" id="trackingNumber" placeholder="Tracking Number">
+            <div class="input-pairs">
+                <input type="number" name="publisehed-ups-rate" id="publishedUpsRate" placeholder="Published UPS Rate">
+                <input type="number" name="discounted-usp-rate" id="discountedUspRate" placeholder="Dicounted UPS Rate">
+            </div>
+
+            <button type="button" id="orderShippedButton">Mark as Shipped</button>
+            <button type="button" id="orderInvoicedButton">Mark as Invoiced</button>
+        </div>
+        <div id="order-data" ></div>
+    </div>
+</body>
+</html>

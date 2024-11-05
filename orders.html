@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" class="orders-page">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Order List</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./scripts/script.js"></script>
+    <script type="module" src="./firebase/auth-handler.js"></script>
+
+</head>
+<body>
+    <header>
+        <button id="googleSignInBtn">Google Sign In</button><a id="emailSignIn" href="./sign-in.html"><button>Email Sign In</button></a><button id="signOutBtn">Sign Out</button>
+        <h1>View Orders</h1>
+        <nav>
+            <a href="./index.html">Home</a>
+            <!-- <a href="./add-item.html">Add Item</a> -->
+            <a href="./orders.html">View Orders</a>
+            <a href="./inventory.html">Inventory</a>
+            <a href="./reports.html">Reports</a>
+        </nav>
+    </header>
+    <div class="order-table">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th colspan="7">
+                        <input type="text" id="searchInput" class="table-search-input" placeholder="Search order list">
+                    </th>
+                </tr>
+                <tr><th>Apple Ticket Number</th><th>Visit Id</th><th>Location Id</th><th>Rep Email</th><th>Status</th><th>Date Ordered</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="orders-page-order-table">
+
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#dataTable tbody tr');
+
+        rows.forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            let rowText = '';
+            
+            // Combine text from all cells in the row
+            for (let cell of cells) {
+                rowText += cell.textContent.toLowerCase() + ' ';
+            }
+            
+            // Show or hide the row based on the search input
+            row.style.display = rowText.includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+</html>

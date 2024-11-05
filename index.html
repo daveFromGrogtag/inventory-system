@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" class="index-page">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory System</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./scripts/script.js" defer></script>
+    <script type="module" src="./firebase/auth-handler.js"></script>
+</head>
+
+<body>
+    <header>
+        <button id="googleSignInBtn">Google Sign In</button><a id="emailSignIn" href="./sign-in.html"><button>Email Sign In</button></a><button id="signOutBtn">Sign Out</button>
+        <h1>Place Order</h1>
+        <nav>
+            <a href="./index.html">Home</a>
+            <!-- <a href="./add-item.html">Add Item</a> -->
+            <a href="./orders.html">View Orders</a>
+            <a href="./inventory.html">Inventory</a>
+            <a href="./reports.html">Reports</a>
+        </nav>
+    </header>
+    <form id="myForm" action="">
+        <details>
+            <summary>Instructions</summary>
+            All you need to do here is add your order information to the top section (Apple Ticket Number, Visit Id, Address etc.) select the quantity of items that you want for the order and click submit.
+        </details>
+        <label for="">Apple Ticket Number</label>
+        <sub>*Apple Ticket Number is used as your order reference number in the system.</sub>
+        <input type="text" name="appleTicketNumber" id="" required placeholder="Apple Ticket Number">
+        <div class="input-pairs">
+            <div>
+                <label for="">Visit Id</label>
+                <input type="text" name="visitId" id="" required placeholder="Visit Id">
+            </div>
+            <div>
+                <label for="">Location Id</label>
+                <input type="text" name="locationId" id="" required placeholder="Location Id">
+            </div>
+        </div>
+
+        <label for="">Employee Name</label>
+        <input type="text" name="employeeName" id="" required placeholder="Employee Name">
+        <label for="">Rep Email</label>
+        <input type="text" name="repEmail" id="" required placeholder="Rep Email">
+
+        <label for="">Address</label>
+        <input type="text" name="address" id="" required placeholder="Address">
+        <div class="input-pairs">
+            <div>
+                <label for="">City</label>
+                <input type="text" name="city" id="" required placeholder="City">
+            </div>
+            <div>
+                <label for="">State</label>
+                <input type="text" name="state" id="" required placeholder="State">
+            </div>
+        </div>
+        <label for="">Zip Code</label>
+        <input type="text" name="zipCode" id="" required placeholder="Zip Code">
+
+
+
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th colspan="4">
+                        <input type="text" id="searchInput" class="table-search-input" placeholder="Search by SKU, Name or Available...">
+                    </th>
+                </tr>
+                <tr>
+                    <th>Item</th>
+                    <th>SKU</th>
+                    <th>Available</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody id="order-page-items-inventory-table">
+
+            </tbody>
+        </table>
+        <div class="button-area">
+            <!-- <button>Submit</button> -->
+            <button type="button" id="orderSubmissionButton">Submit</button>
+        </div>
+    </form>
+</body>
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#dataTable tbody tr');
+
+        rows.forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            let rowText = '';
+            
+            // Combine text from all cells in the row
+            for (let cell of cells) {
+                rowText += cell.textContent.toLowerCase() + ' ';
+            }
+            
+            // Show or hide the row based on the search input
+            row.style.display = rowText.includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+<!-- <script>
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#dataTable tbody tr');
+
+        rows.forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            const sku = cells[1].textContent.toLowerCase();
+            row.style.display = sku.includes(filter) ? '' : 'none';
+        });
+    });
+</script> -->
+<!-- <script>
+    function saveFormAsJson() {
+        const form = document.getElementById('myForm');
+        const formData = new FormData(form);
+        const jsonObject = {
+            items: {} // Initialize the nested object
+        };
+
+        formData.forEach((value, key) => {
+            // Check if the key starts with 'items['
+            if (key.startsWith('items[')) {
+                const itemKey = key.replace('items[', '').replace(']', '');
+                jsonObject.items[itemKey] = value; // Add to nested object
+            } else {
+                jsonObject[key] = value; // Add to the main object
+            }
+        });
+
+        const jsonString = JSON.stringify(jsonObject);
+        console.log(jsonString); // Output the JSON string
+        // You can replace this with code to save the JSON or send it to a server
+    }
+</script> -->
+
+</html>
