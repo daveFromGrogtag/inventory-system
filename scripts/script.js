@@ -426,6 +426,44 @@ function populateOrdersPage() {
                 <td>${order.data().repEmail}</td>
                 <td>${order.data().orderStatus}</td>
                 <td>${timeStampDate}</td>
+                <td><a href="./view-order.html?id=${order.data().appleTicketNumber}">Order</a></td>
+                </tr>`
+                    orderList += orderRow
+
+                })
+                orderTable.innerHTML = orderList
+            })
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function populateOrdersAdminPage() {
+    console.log("Populating orders page...")
+    const currentOrders = query(collection(db, "orders"))
+    try {
+        const orderTable = document.getElementById("orders-page-order-table")
+        getDocs(currentOrders)
+            .then((docs) => {
+                let orderList = ""
+                docs.forEach(order => {
+                    let orderTimeStamp = "N/A"
+                    let day, month, year, timeStampDate
+                    if (typeof order.data().createdOn == "object") {
+                        orderTimeStamp = new Date(order.data().createdOn.seconds * 1000)
+                        month = String(orderTimeStamp.getMonth() + 1)
+                        day = String(orderTimeStamp.getDate())
+                        year = String(orderTimeStamp.getFullYear())
+                        timeStampDate = `${month}/${day}/${year}`
+                    }
+
+                    let orderRow = `<tr>
+                    <td>${order.data().appleTicketNumber}</td>
+                <td>${order.data().visitId}</td>
+                <td>${order.data().locationId}</td>
+                <td>${order.data().repEmail}</td>
+                <td>${order.data().orderStatus}</td>
+                <td>${timeStampDate}</td>
                 <td><a href="./view-order.html?id=${order.data().appleTicketNumber}">Order</a> | <a href="./packing-list.html?id=${order.data().appleTicketNumber}">Pack-List</a> | <a href="./order-shipped.html?id=${order.data().appleTicketNumber}">Ship</a></td>
                 </tr>`
                     orderList += orderRow
@@ -663,6 +701,11 @@ if (classExists("index-page")) {
 // - - - - - For Orders Page
 if (classExists("orders-page")) {
     populateOrdersPage()
+}
+
+// - - - - - For Orders Page
+if (classExists("orders-admin-page")) {
+    populateOrdersAdminPage()
 }
 
 // - - - - - For Inventory Page
