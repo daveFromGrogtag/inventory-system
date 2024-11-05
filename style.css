@@ -164,3 +164,7 @@ summary {
 #googleSignInBtn, #emailSignIn, #signOutBtn {
     display: none;
 }
+
+nav.admin-nav {
+    background-color: #d3d3d3;
+}
