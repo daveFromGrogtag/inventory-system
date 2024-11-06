@@ -33,6 +33,24 @@ function populateInventoryOnOrderPage() {
     }
 }
 
+function previewOrder() {
+    const form = document.getElementById('myForm');
+    const formData = new FormData(form);
+    const confirmationModal = document.getElementById('confirmationModal')
+    const confirmationInfoContainer = document.getElementById('confirmationInfoContainer')
+    confirmationModal.style.display = "block"
+    let confirmationInfo = "";
+    formData.forEach((value, key) => {
+        if (key.includes("items[") && value == "0") {
+
+        } else {
+            confirmationInfo += `<p>${key} - ${value}</p>`
+        }
+    })
+    // console.log(confirmationInfo);
+    confirmationInfoContainer.innerHTML = confirmationInfo
+}
+
 function placeOrder() {
     const timeStampCurrent = new Date()
     console.log("Placing order...")
@@ -127,8 +145,11 @@ function placeOrder() {
     <div class="container">
         <h1>Order Confirmation - ${jsonObject.appleTicketNumber}</h1>
         <p>Dear ${jsonObject.employeeName},</p>
-        <p>Thank you for your order! Here are the details of your purchase:</p>
+        <p>Thank you for your order! Here are the details of your order:</p>
         
+        <h3>Order Information</h3>
+        <p>Apple Ticket Number: ${jsonObject.appleTicketNumber} - Visit Id: ${jsonObject.visitId} - Location Id: ${locationId}
+
         <h3>Contact Information</h3>
         <p>Email: ${jsonObject.repEmail}</p>
         
@@ -145,14 +166,12 @@ function placeOrder() {
                 </tr>
             </thead>
             <tbody>
-                <!-- Repeat this block for each item -->
                 ${emailHtmlItemList}
-                <!-- End of item block -->
             </tbody>
         </table>
         
         <p class="footer">If you have any questions about your order, please contact us at support@grogtag.com.</p>
-        <p class="footer">Thank you for shopping with us!</p>
+        <p class="footer">Thank you for ordering from us!</p>
     </div>
 </body>
 </html>
@@ -182,7 +201,8 @@ function placeOrder() {
                                 updateDoc(doc(db, "inventory", key), {
                                     availableQuantity: newAvailableQuantity
                                 }).then(() => {
-                                    location.reload();
+                                    // location.reload();
+                                    document.getElementById("confirmationModal").innerHTML = `<div><h2>Order ${jsonObject.appleTicketNumber} has been placed.<br>Thank you!</h2></div>`
                                 })
                             })
                             .catch((error) => {
@@ -695,6 +715,10 @@ if (classExists("index-page")) {
     populateInventoryOnOrderPage()
     document.getElementById('orderSubmissionButton').addEventListener('click', () => {
         placeOrder()
+    })
+    document.getElementById('orderPreviewButton').addEventListener('click', () => {
+        // placeOrder()
+        previewOrder()
     })
 }
 

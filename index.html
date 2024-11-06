@@ -82,9 +82,19 @@
         </table>
         <div class="button-area">
             <!-- <button>Submit</button> -->
-            <button type="button" id="orderSubmissionButton">Submit</button>
+            <button type="button" id="orderPreviewButton">Submit</button>
         </div>
     </form>
+    <div id="confirmationModal">
+        <div>
+            Please review the items and information in your information and confirm that they are correct.
+            <div id="confirmationInfoContainer"></div>
+            <div class="button-area">
+                <!-- <button>Submit</button> -->
+                <button type="button" id="orderSubmissionButton">Confirm Order</button>
+            </div>
+        </div>
+    </div>
 </body>
 <script>
     document.getElementById('searchInput').addEventListener('keyup', function() {
