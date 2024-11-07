@@ -148,7 +148,7 @@ function placeOrder() {
         <p>Thank you for your order! Here are the details of your order:</p>
         
         <h3>Order Information</h3>
-        <p>Apple Ticket Number: ${jsonObject.appleTicketNumber} - Visit Id: ${jsonObject.visitId} - Location Id: ${locationId}
+        <p>Apple Ticket Number: ${jsonObject.appleTicketNumber} - Visit Id: ${jsonObject.visitId} - Location Id: ${jsonObject.locationId}
 
         <h3>Contact Information</h3>
         <p>Email: ${jsonObject.repEmail}</p>
