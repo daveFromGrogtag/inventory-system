@@ -26,9 +26,26 @@
             <summary>Instructions</summary>
             All you need to do here is add your order information to the top section (Apple Ticket Number, Visit Id, Address etc.) select the quantity of items that you want for the order and click submit.
         </details>
-        <label for="">Apple Ticket Number</label>
         <sub>*Apple Ticket Number is used as your order reference number in the system.</sub>
-        <input type="text" name="appleTicketNumber" id="" required placeholder="Apple Ticket Number">
+        <div class="input-pairs">
+            <label for="">Apple Ticket Number</label>
+            <input type="text" name="appleTicketNumber" id="" required placeholder="Apple Ticket Number">
+            <label for="retailer">Retailer</label>
+            <select name="retailer" id="retailer" required>
+                <option value="" disabled selected>Select Retailer...</option>
+                <option value="t-mobile">T-Mobile</option>
+                <option value="best-buy">Best-Buy</option>
+                <option value="nebraska-furniture-mart">Nebraska Furniture Mart</option>
+                <option value="us-cellular">US Cellular</option>
+                <option value="att">AT&T</option>
+                <option value="army-air-force-exchange-store">Army Air Force Exchange Store</option>
+                <option value="c-spire-wireless">C Spire Wireless</option>
+                <option value="nexcom">Nexcom</option>
+                <option value="target">Target</option>
+                <option value="usmc-exchange">USMC Exchange</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
         <div class="input-pairs">
             <div>
                 <label for="">Visit Id</label>

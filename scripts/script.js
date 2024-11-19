@@ -600,7 +600,8 @@ function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
     try {
         addDoc(collection(db, "mail"), {
             to: recipientEmail,
-            cc: "orders@grogtag.com",
+            // cc: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
+            bcc: "orders@grogtag.com",
             message: {
                 subject: subjectLine,
                 html: htmlMessage

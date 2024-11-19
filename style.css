@@ -188,3 +188,13 @@ nav.admin-nav {
     padding: 1rem;
     border-radius: .5rem;
 }
+
+select:required:invalid {
+    color: gray;
+  }
+option[value=""][disabled] {
+display: none;
+}
+option {
+color: black;
+}
