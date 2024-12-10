@@ -1,5 +1,5 @@
 import { db } from "../firebase/init.js"
-import { setDoc, doc, query, collection, getDocs, updateDoc, getDoc, addDoc, Timestamp, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { setDoc, doc, query, collection, getDocs, updateDoc, getDoc, addDoc, Timestamp, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // - - - - - - - - - - - - //
 // - - PAGE FUNCTIONS  - - //
@@ -422,7 +422,7 @@ function updateItem() {
 
 function populateOrdersPage() {
     console.log("Populating orders page...")
-    const currentOrders = query(collection(db, "orders"))
+    const currentOrders = query(collection(db, "orders"), orderBy("createdOn", "desc"))
     try {
         const orderTable = document.getElementById("orders-page-order-table")
         getDocs(currentOrders)
@@ -439,7 +439,7 @@ function populateOrdersPage() {
                         timeStampDate = `${month}/${day}/${year}`
                     }
 
-                    let orderRow = `<tr>
+                    let orderRow = `<tr class="${order.data().orderStatus}">
                     <td>${order.data().appleTicketNumber}</td>
                 <td>${order.data().visitId}</td>
                 <td>${order.data().locationId}</td>
@@ -460,7 +460,7 @@ function populateOrdersPage() {
 
 function populateOrdersAdminPage() {
     console.log("Populating orders page...")
-    const currentOrders = query(collection(db, "orders"))
+    const currentOrders = query(collection(db, "orders"), orderBy("createdOn", "desc"))
     try {
         const orderTable = document.getElementById("orders-page-order-table")
         getDocs(currentOrders)
@@ -477,7 +477,7 @@ function populateOrdersAdminPage() {
                         timeStampDate = `${month}/${day}/${year}`
                     }
 
-                    let orderRow = `<tr>
+                    let orderRow = `<tr class="${order.data().orderStatus}">
                     <td>${order.data().appleTicketNumber}</td>
                 <td>${order.data().visitId}</td>
                 <td>${order.data().locationId}</td>
@@ -627,7 +627,8 @@ function generateReport() {
 }
 
 function bulkUploader() {
-    document.getElementById("bulkUploadSubmissionButton").addEventListener("click", () => {
+    document.getElementById("bulkUploadSubmissionButton").addEventListener("click", (e) => {
+        e.preventDefault()
         let bulkUploadTextArea = document.getElementById("bulkUploadTextArea").value
         let rowSplit = bulkUploadTextArea.split(/\r?\n|\r|\n/g);
         rowSplit.forEach(row => {
@@ -650,6 +651,50 @@ function bulkUploader() {
         })
 
     })
+
+    // document.getElementById("bulkUploadSubmissionButton").addEventListener("click", (e) => {
+    //     e.preventDefault()
+    //     let bulkUploadTextArea = document.getElementById("bulkUploadTextArea").value
+    //     let rowSplit = bulkUploadTextArea.split(/\r?\n|\r|\n/g);
+    //     rowSplit.forEach(row => {
+    //         let cells = row.split(",")
+    //         let appleTicketNumber = cells[1].trim()
+    //         let address = cells[0].trim()
+    //         let city = cells[2].trim()
+    //         let createdOn = cells[3].trim()
+    //         let employeeName = cells[4].trim()
+    //         let locationId = cells[5].trim()
+    //         let orderStatus = "complete"
+    //         let repEmail = cells[7].trim()
+    //         let retailer = cells[6].trim()
+    //         let state = cells[9].trim()
+    //         let visitId = cells[8].trim()
+    //         let zipCode = cells[10].trim()
+
+    //         setDoc(doc(db, "orders", appleTicketNumber), {
+    //             appleTicketNumber: appleTicketNumber,
+    //             address: address,
+    //             city: city,
+    //             createdOn: createdOn,
+    //             employeeName: employeeName,
+    //             items: [],
+    //             locationId: locationId,
+    //             orderStatus: orderStatus,
+    //             repEmail: repEmail,
+    //             retailer: retailer,
+    //             state: state,
+    //             visitId: visitId,
+    //             zipCode: zipCode
+    //         }).then(() => {
+    //             console.log("Moving items");
+    //         }).catch((error) => {
+    //             console.error(error);
+
+    //         })
+    //     })
+
+    // })
+
 }
 
 // - - - - - - - - - - - - - //
@@ -675,7 +720,7 @@ function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
     try {
         addDoc(collection(db, "mail"), {
             to: recipientEmail,
-            // cc: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
+            cc: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
             bcc: "orders@grogtag.com",
             message: {
                 subject: subjectLine,
@@ -688,6 +733,10 @@ function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
     } catch (error) {
         console.error(error);
     }
+}
+
+function createQuantityNotification() {
+
 }
 
 async function generateOrdersCSV(collectionName, startDate, endDate) {

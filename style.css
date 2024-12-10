@@ -198,3 +198,13 @@ display: none;
 option {
 color: black;
 }
+
+@media print {
+    .packing-list-page body {
+        background-color: white;
+    }
+
+    .packing-list-page #signOutBtn {
+        display: none !important;
+    }
+}
