@@ -524,30 +524,105 @@ function populateInventoryPage() {
 
 function generateReport() {
     console.log("Generating reports...")
-    try {
-        // Get the start and end date values from the input fields
-        const startDateInput = document.getElementById("startDate").value;
-        const endDateInput = document.getElementById("endDate").value;
+    const reportType = document.getElementById("reportSelector").value
 
-        if (!startDateInput || !endDateInput) {
-            alert("Please select both start and end dates.");
-            return;
+    // Order Report By Date
+    if (reportType == "order-report") {
+        try {
+            // Get the start and end date values from the input fields
+            const startDateInput = document.getElementById("startDate").value;
+            const endDateInput = document.getElementById("endDate").value;
+
+            if (!startDateInput || !endDateInput) {
+                alert("Please select both start and end dates.");
+                return;
+            }
+
+            // Convert input date strings to Date objects
+            const startDate = new Date(startDateInput);
+            const endDate = new Date(endDateInput);
+
+            // Validate the date range
+            if (startDate > endDate) {
+                alert("Start date cannot be later than end date.");
+                return;
+            }
+
+            // Call the generateCSV function with your Firestore collection name
+            generateOrdersCSV("orders", startDate, endDate);
+        } catch (error) {
+            console.error(error)
         }
+    }
+    // On Hand Quantities Report
+    if (reportType == "on-hand-report") {
+        try {
+            console.log("On Hand Report Generating");
+            generateInventoryCSV("inventory")
 
-        // Convert input date strings to Date objects
-        const startDate = new Date(startDateInput);
-        const endDate = new Date(endDateInput);
-
-        // Validate the date range
-        if (startDate > endDate) {
-            alert("Start date cannot be later than end date.");
-            return;
+        } catch (error) {
+            console.error(error)
         }
+    }
+    // Usage By Retailer 
+    if (reportType == "by-retailer-report") {
+        try {
+            // Get the start and end date values from the input fields
+            const startDateInput = document.getElementById("startDate").value;
+            const endDateInput = document.getElementById("endDate").value;
 
-        // Call the generateCSV function with your Firestore collection name
-        generateOrdersCSV("orders", startDate, endDate);
-    } catch (error) {
-        console.error(error)
+            if (!startDateInput || !endDateInput) {
+                alert("Please select both start and end dates.");
+                return;
+            }
+
+            // Convert input date strings to Date objects
+            const startDate = new Date(startDateInput);
+            const endDate = new Date(endDateInput);
+
+            // Validate the date range
+            if (startDate > endDate) {
+                alert("Start date cannot be later than end date.");
+                return;
+            }
+
+            // Call the generateCSV function with your Firestore collection name
+            generateUsageByRetailerCSV("orders", startDate, endDate);
+        } catch (error) {
+            console.error(error)
+        }
+    }
+    // Usage By Date
+    if (reportType == "by-date-usage-report") {
+        try {
+            // Get the start and end date values from the input fields
+            const startDateInput = document.getElementById("startDate").value;
+            const endDateInput = document.getElementById("endDate").value;
+
+            if (!startDateInput || !endDateInput) {
+                alert("Please select both start and end dates.");
+                return;
+            }
+
+            // Convert input date strings to Date objects
+            const startDate = new Date(startDateInput);
+            const endDate = new Date(endDateInput);
+
+            // Validate the date range
+            if (startDate > endDate) {
+                alert("Start date cannot be later than end date.");
+                return;
+            }
+
+            // Call the generateCSV function with your Firestore collection name
+            generateUsageByDateCSV("orders", startDate, endDate);
+        } catch (error) {
+            console.error(error)
+        }
+    }
+    else {
+        console.log("No report selected");
+
     }
 }
 
@@ -622,7 +697,7 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
 
     // Query Firestore for documents with timestamps within the range
     const querySnapshot = await getDocs(query(collection(db, collectionName), where("createdOn", ">=", startTimestamp), where("createdOn", "<=", endTimestamp)))
-    console.log(querySnapshot);
+    // console.log(querySnapshot);
 
     // Check if documents were retrieved
     if (querySnapshot.empty) {
@@ -706,6 +781,155 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
     link.download = `${collectionName}_data_${startDate.toISOString()}_to_${endDate.toISOString()}.csv`;
     link.click();
 }
+
+async function generateInventoryCSV(collectionName) {
+    const querySnapshot = await getDocs(query(collection(db, collectionName)))
+    console.log(querySnapshot);
+    // Check if documents were retrieved
+    if (querySnapshot.empty) {
+        alert("No documents found in the specified range.");
+        return;
+    }
+    let csvData = "name,sku,availableQuantity\n"
+    querySnapshot.forEach(item => {
+        csvData = csvData + `${item.data().name},${item.data().sku},${item.data().availableQuantity}\n`
+    })
+    console.log(csvData);
+
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `current_inventory_data.csv`;
+    link.click();
+}
+
+async function generateUsageByRetailerCSV(collectionName, startDate, endDate) {
+    // Convert date inputs to Firestore Timestamps
+    const startTimestamp = Timestamp.fromDate(startDate);
+    const endTimestamp = Timestamp.fromDate(endDate);
+
+    // Query Firestore for documents with timestamps within the range
+    const querySnapshot = await getDocs(query(collection(db, collectionName), where("createdOn", ">=", startTimestamp), where("createdOn", "<=", endTimestamp)))
+    const inventorySnapshot = await getDocs(query(collection(db, "inventory")))
+    // console.log(querySnapshot);
+    let allItems = []
+    inventorySnapshot.forEach(item => {
+        allItems.push(item.data().sku)
+    })
+
+    let retailerList = [
+        "t-mobile",
+        "best-buy",
+        "nebraska-furniture-mart",
+        "us-cellular",
+        "att",
+        "army-air-force-exchange-store",
+        "c-spire-wireless",
+        "nexcom",
+        "target",
+        "usmc-exchange",
+        "other"
+    ]
+
+    const retailerOrderData = retailerList.reduce((acc, key1) => {
+        acc[key1] = {};  // Initialize the second-level object
+        allItems.forEach(key2 => {
+            acc[key1][key2] = 0;  // Set each second-level key to 0
+        });
+        return acc;
+    }, {});
+
+    // Check if documents were retrieved
+    if (querySnapshot.empty) {
+        alert("No documents found in the specified range.");
+        return;
+    }
+
+    querySnapshot.forEach(order => {
+        // const aidn = order.data().appleTicketNumber
+        const orderRetailer = order.data().retailer || "other"
+        const orderItems = order.data().items
+        Object.keys(orderItems).forEach(itemKey => {
+            // console.log(`aidn ${aidn} | ${orderRetailer} | ${itemKey} | ${orderItems[itemKey]} | ${retailerOrderData[orderRetailer][itemKey]}`);
+            if (retailerOrderData[orderRetailer][itemKey] === undefined) {
+                retailerOrderData[orderRetailer][itemKey] = 0
+            }
+            retailerOrderData[orderRetailer][itemKey] += parseInt(orderItems[itemKey])
+        })
+    })
+    const csvContent = objectToCSV(retailerOrderData)
+
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `retailer_usage_${startDate.toISOString()}_to_${endDate.toISOString()}.csv`;
+    link.click();
+}
+
+async function generateUsageByDateCSV(collectionName, startDate, endDate) {
+    // Convert date inputs to Firestore Timestamps
+    const startTimestamp = Timestamp.fromDate(startDate);
+    const endTimestamp = Timestamp.fromDate(endDate);
+
+    // Query Firestore for documents with timestamps within the range
+    const querySnapshot = await getDocs(query(collection(db, collectionName), where("createdOn", ">=", startTimestamp), where("createdOn", "<=", endTimestamp)))
+    const inventorySnapshot = await getDocs(query(collection(db, "inventory")))
+    // console.log(querySnapshot);
+    let allItems = {}
+    inventorySnapshot.forEach(item => {
+        allItems[item.data().sku] = 0
+    })
+
+    console.log(allItems);
+    
+    // Check if documents were retrieved
+    if (querySnapshot.empty) {
+        alert("No documents found in the specified range.");
+        return;
+    }
+
+    querySnapshot.forEach(order => {
+        const orderItems = order.data().items
+        Object.keys(orderItems).forEach(itemKey => {
+            // console.log(`aidn ${aidn} | ${orderRetailer} | ${itemKey} | ${orderItems[itemKey]} | ${retailerOrderData[orderRetailer][itemKey]}`);
+            if (allItems[itemKey] === undefined) {
+                allItems[itemKey] = 0
+            }
+            allItems[itemKey] += parseInt(orderItems[itemKey])
+        })
+    })
+    let csvContent = "sku,usage\n"
+    Object.keys(allItems).forEach(itemKey => {
+        csvContent += `${itemKey},${allItems[itemKey]}\n`
+    })
+
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `part_usage_${startDate.toISOString()}_to_${endDate.toISOString()}.csv`;
+    link.click();
+}
+
+function objectToCSV(obj) {
+    // Get the list of item codes (keys from the first store)
+    const itemCodes = Object.keys(Object.values(obj)[0]);
+  
+    // Prepare the CSV content
+    let csvContent = "Retailer," + itemCodes.join(",") + "\n";  // First row: store names + item codes
+  
+    // Iterate over each store and collect item quantities
+    for (const store in obj) {
+      const row = [store];
+      itemCodes.forEach(item => {
+        row.push(obj[store][item] || 0);  // Add item quantity or 0 if undefined
+      });
+      csvContent += row.join(",") + "\n";  // Add row to CSV content
+    }
+  
+    return csvContent;
+  }
 
 // - - - - - - - - - - - - - - - - //
 // - - PAGE FUNCTION TRIGGERS  - - //
