@@ -701,6 +701,25 @@ function bulkUploader() {
 // - - UTILITY FUNCTIONS - - //
 // - - - - - - - - - - - - - //
 
+function objectToCSV(obj) {
+    // Get the list of item codes (keys from the first store)
+    const itemCodes = Object.keys(Object.values(obj)[0]);
+  
+    // Prepare the CSV content
+    let csvContent = "Retailer," + itemCodes.join(",") + "\n";  // First row: store names + item codes
+  
+    // Iterate over each store and collect item quantities
+    for (const store in obj) {
+      const row = [store];
+      itemCodes.forEach(item => {
+        row.push(obj[store][item] || 0);  // Add item quantity or 0 if undefined
+      });
+      csvContent += row.join(",") + "\n";  // Add row to CSV content
+    }
+  
+    return csvContent;
+}
+
 function getQueryParamValue(paramName) {
     let url = window.location.href;
     // Create a URL object
@@ -739,6 +758,11 @@ function createQuantityNotification() {
 
 }
 
+
+// - - - - - - - - - - - - - - //
+// - - REPORTING FUNCTIONS - - //
+// - - - - - - - - - - - - - - //
+
 async function generateOrdersCSV(collectionName, startDate, endDate) {
     // Convert date inputs to Firestore Timestamps
     const startTimestamp = Timestamp.fromDate(startDate);
@@ -754,12 +778,13 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
         return;
     }
 
-    const staticColumns = ["appleTicketNumber", "visitId", "locationId", "employeeName", "repEmail", "address", "city", "state", "zipCode", "createdOn", "orderStatus", "shippedOn", "trackingNumber", "publishedUpsRate", "discountedUspRate"]
+    const staticColumns = ["appleTicketNumber", "visitId", "locationId", "retailer", "employeeName", "repEmail", "address", "city", "state", "zipCode", "createdOn", "shippedOn", "trackingNumber", "discountedUspRate", "orderStatus"]
     // Prepare dynamic columns and data
     let columns = new Set(); // To store unique column names
     let dataRows = [];
 
     // Iterate through each document to gather keys (fields) for columns
+    // QUERY SNAP 1
     querySnapshot.forEach(doc => {
         const data = doc.data();
 
@@ -775,6 +800,14 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
             }
         });
 
+        const dynamicColumns = Array.from(columns).filter(column => !staticColumns.includes(column)).sort();
+        console.log(dynamicColumns);
+    });
+
+
+    // QUERY SNAP 2
+    querySnapshot.forEach(doc => {
+        const data = doc.data();
         // Prepare the row data
         const row = [];
         staticColumns.forEach(column => {
@@ -801,6 +834,8 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
         });
 
         const dynamicColumns = Array.from(columns).filter(column => !staticColumns.includes(column)).sort();
+        console.log(dynamicColumns);
+        
         dynamicColumns.forEach(column => {
             if (column === 'items') {
                 row.push(''); // If 'items' is not directly a field, leave it empty
@@ -961,24 +996,6 @@ async function generateUsageByDateCSV(collectionName, startDate, endDate) {
     link.click();
 }
 
-function objectToCSV(obj) {
-    // Get the list of item codes (keys from the first store)
-    const itemCodes = Object.keys(Object.values(obj)[0]);
-  
-    // Prepare the CSV content
-    let csvContent = "Retailer," + itemCodes.join(",") + "\n";  // First row: store names + item codes
-  
-    // Iterate over each store and collect item quantities
-    for (const store in obj) {
-      const row = [store];
-      itemCodes.forEach(item => {
-        row.push(obj[store][item] || 0);  // Add item quantity or 0 if undefined
-      });
-      csvContent += row.join(",") + "\n";  // Add row to CSV content
-    }
-  
-    return csvContent;
-  }
 
 // - - - - - - - - - - - - - - - - //
 // - - PAGE FUNCTION TRIGGERS  - - //
