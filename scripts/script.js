@@ -235,6 +235,7 @@ function viewOrder() {
 <b>City:</b> ${order.data().city}<br>
 <b>State:</b> ${order.data().state}<br>
 <b>Zip Code:</b> ${order.data().zipCode}<br>
+${order.data().trackingNumber?"<b>Tracking Number:</b> "+ order.data().trackingNumber:""}
 <br>
             `
                 let itemList = ""
