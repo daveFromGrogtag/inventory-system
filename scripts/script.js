@@ -180,8 +180,11 @@ function placeOrder() {
 
         // creates order in firebase
         // Apple Ticket Number is used as the order id
-        setDoc(doc(db, "orders", jsonObject.appleTicketNumber), {
+        // Need a new orderId
+        let mainOrderId = jsonObject.appleTicketNumber + "-" + getCurrentDateWithRandomNumber();
+        setDoc(doc(db, "orders", mainOrderId), {
             ...jsonObject,
+            mainOrderId: mainOrderId,
             orderStatus: "placed",
             createdOn: timeStampCurrent
         })
@@ -235,6 +238,7 @@ function viewOrder() {
 <b>City:</b> ${order.data().city}<br>
 <b>State:</b> ${order.data().state}<br>
 <b>Zip Code:</b> ${order.data().zipCode}<br>
+<b>Order Status:</b> ${order.data().orderStatus}<br>
 ${order.data().trackingNumber?"<b>Tracking Number:</b> "+ order.data().trackingNumber:""}
 <br>
             `
@@ -447,7 +451,7 @@ function populateOrdersPage() {
                 <td>${order.data().repEmail}</td>
                 <td>${order.data().orderStatus}</td>
                 <td>${timeStampDate}</td>
-                <td><a href="./view-order.html?id=${order.data().appleTicketNumber}">Order</a></td>
+                <td><a href="./view-order.html?id=${order.data().mainOrderId || order.data().appleTicketNumber}">Order</a></td>
                 </tr>`
                     orderList += orderRow
 
@@ -485,7 +489,9 @@ function populateOrdersAdminPage() {
                 <td>${order.data().repEmail}</td>
                 <td>${order.data().orderStatus}</td>
                 <td>${timeStampDate}</td>
-                <td><a href="./view-order.html?id=${order.data().appleTicketNumber}">Order</a> | <a href="./packing-list.html?id=${order.data().appleTicketNumber}">Pack-List</a> | <a href="./order-shipped.html?id=${order.data().appleTicketNumber}">Ship</a></td>
+                <td>${order.data().publishedUpsRate || "-"}</td>
+                <td>${order.data().discountedUspRate || "-"}</td>
+                <td><a href="./view-order.html?id=${order.data().mainOrderId || order.data().appleTicketNumber}">Order</a> | <a href="./packing-list.html?id=${order.data().mainOrderId || order.data().appleTicketNumber}">Pack-List</a> | <a href="./order-shipped.html?id=${order.data().mainOrderId || order.data().appleTicketNumber}">Ship</a></td>
                 </tr>`
                     orderList += orderRow
 
@@ -757,6 +763,15 @@ function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
 
 function createQuantityNotification() {
 
+}
+
+function getCurrentDateWithRandomNumber() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const day = String(today.getDate()).padStart(2, '0');
+    const randomNumber = Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit number
+    return `${year}-${month}-${day}-${randomNumber}`;
 }
 
 
