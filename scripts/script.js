@@ -239,7 +239,7 @@ function viewOrder() {
 <b>State:</b> ${order.data().state}<br>
 <b>Zip Code:</b> ${order.data().zipCode}<br>
 <b>Order Status:</b> ${order.data().orderStatus}<br>
-${order.data().trackingNumber?"<b>Tracking Number:</b> "+ order.data().trackingNumber:""}
+${order.data().trackingNumber ? "<b>Tracking Number:</b> " + order.data().trackingNumber : ""}
 <br>
             `
                 let itemList = ""
@@ -704,6 +704,155 @@ function bulkUploader() {
 
 }
 
+function populateEditInventoryPage() {
+    console.log("Creating Edit Inventory Page...");
+    console.log("Pulling items...")
+    const currentInventory = query(collection(db, "inventory"))
+    try {
+        const inventoryTable = document.getElementById("edit-inventory-page-inventory-table")
+        getDocs(currentInventory)
+            .then((docs) => {
+                let inventoryItemList = ""
+                docs.forEach(item => {
+                    let itemRow = `<tr>
+                <td>${item.data().sku}</td>
+                <td>${item.data().availableQuantity}</td>
+                <td><input type="number" value=0 min=0 name="items[${item.data().sku}]"></td>
+                </tr>`
+                    inventoryItemList += itemRow
+                })
+                inventoryTable.innerHTML = inventoryItemList
+            }).catch((error) => {
+                console.error(error);
+            }).finally(() => {
+                console.log("items pulled.");
+            })
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+async function editInventoryValues() {
+    const form = document.getElementById('myForm');
+    const formData = new FormData(form);
+    let emailBodyTable = "<tr><th>SKU</th><th>Added Qty</th><th>New Available Qty</th></tr>"
+
+    const jsonObject = {
+        items: {} // Initialize the nested object
+    };
+
+    formData.forEach((value, key) => {
+        // Check if the key starts with 'items['
+        if (key.startsWith('items[')) {
+            const itemKey = key.replace('items[', '').replace(']', '');
+            if (value != 0) {
+                jsonObject.items[itemKey] = value; // Add to nested object
+            }
+        }
+    });
+
+    // console.log(jsonObject);
+
+
+    // Object.entries(jsonObject.items).forEach(([key, value]) => {
+    //     value = parseInt(value)
+    //     if (value > 0) {
+    //         getDoc(doc(db, "inventory", key))
+    //             .then((item) => {
+    //                 let currentAvailableQuantity = item.data().availableQuantity
+    //                 let newAvailableQuantity = currentAvailableQuantity + value
+    //                 emailBodyTable += `<tr><td>${key}</td><td>${value}</td><td>${newAvailableQuantity}</td></tr>`
+    //                 updateDoc(doc(db, "inventory", key), {
+    //                     availableQuantity: newAvailableQuantity
+    //                 }).then(() => {
+    //                     // location.reload();                      
+    //                 })
+    //             })
+    //             .catch((error) => {
+    //                 console.error(error);
+    //             })
+    //     }
+    // })
+
+    // Collect promises from the loop
+    const updatePromises = Object.entries(jsonObject.items).map(async ([key, value]) => {
+        value = parseInt(value);
+        if (value > 0) {
+            try {
+                const item = await getDoc(doc(db, "inventory", key));
+                let currentAvailableQuantity = item.data().availableQuantity;
+                let newAvailableQuantity = currentAvailableQuantity + value;
+                emailBodyTable += `<tr><td>${key}</td><td>${value}</td><td>${newAvailableQuantity}</td></tr>`;
+                await updateDoc(doc(db, "inventory", key), {
+                    availableQuantity: newAvailableQuantity
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    });
+
+    // Wait for all promises to complete
+    await Promise.all(updatePromises);
+
+    const emailBody = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Inventory Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+    <body>
+    <div class="container">
+        <h1>Inventory Quantity Updated</h1>
+        <p>The inventory levels have been adjusted.</p>
+        <table>${emailBodyTable}</table>
+        <p class="footer">If you have any questions, please contact us at support@grogtag.com.</p>
+        <p class="footer">Thank you!</p>
+    </div>
+    </body>
+    </html>`
+    createEmailNotification("dave@grogtag.com", "Vector Inventory Update", emailBody)
+
+}
+
 // - - - - - - - - - - - - - //
 // - - UTILITY FUNCTIONS - - //
 // - - - - - - - - - - - - - //
@@ -711,19 +860,19 @@ function bulkUploader() {
 function objectToCSV(obj) {
     // Get the list of item codes (keys from the first store)
     const itemCodes = Object.keys(Object.values(obj)[0]);
-  
+
     // Prepare the CSV content
     let csvContent = "Retailer," + itemCodes.join(",") + "\n";  // First row: store names + item codes
-  
+
     // Iterate over each store and collect item quantities
     for (const store in obj) {
-      const row = [store];
-      itemCodes.forEach(item => {
-        row.push(obj[store][item] || 0);  // Add item quantity or 0 if undefined
-      });
-      csvContent += row.join(",") + "\n";  // Add row to CSV content
+        const row = [store];
+        itemCodes.forEach(item => {
+            row.push(obj[store][item] || 0);  // Add item quantity or 0 if undefined
+        });
+        csvContent += row.join(",") + "\n";  // Add row to CSV content
     }
-  
+
     return csvContent;
 }
 
@@ -852,7 +1001,7 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
 
         const dynamicColumns = Array.from(columns).filter(column => !staticColumns.includes(column)).sort();
         console.log(dynamicColumns);
-        
+
         dynamicColumns.forEach(column => {
             if (column === 'items') {
                 row.push(''); // If 'items' is not directly a field, leave it empty
@@ -984,7 +1133,7 @@ async function generateUsageByDateCSV(collectionName, startDate, endDate) {
     })
 
     console.log(allItems);
-    
+
     // Check if documents were retrieved
     if (querySnapshot.empty) {
         alert("No documents found in the specified range.");
@@ -1078,5 +1227,14 @@ if (classExists("reports-page")) {
     document.getElementById("reportSubmitBtn").addEventListener("click", () => {
         console.log("running reports page");
         generateReport()
+    })
+}
+
+// - - - - - For Edit Inventory Page
+if (classExists("edit-inventory-page")) {
+    populateEditInventoryPage()
+    document.getElementById("applyInventoryChangesButton").addEventListener("click", (e) => {
+        e.preventDefault()
+        editInventoryValues()
     })
 }
