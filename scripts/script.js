@@ -794,7 +794,7 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
         return;
     }
 
-    const staticColumns = ["appleTicketNumber", "visitId", "locationId", "retailer", "employeeName", "repEmail", "address", "city", "state", "zipCode", "createdOn", "shippedOn", "trackingNumber", "discountedUspRate", "orderStatus"]
+    const staticColumns = ["mainOrderId", "appleTicketNumber", "visitId", "locationId", "retailer", "employeeName", "repEmail", "address", "city", "state", "zipCode", "createdOn", "shippedOn", "trackingNumber", "discountedUspRate", "publishedUpsRate", "orderStatus"]
     // Prepare dynamic columns and data
     let columns = new Set(); // To store unique column names
     let dataRows = [];
@@ -845,6 +845,7 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
                 } else {
                     fieldValue = data[column] || ''; // Default to empty string if not present
                 }
+                fieldValue = fieldValue.replace(/,/g, "")
                 row.push(fieldValue);
             }
         });
@@ -857,6 +858,7 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
                 row.push(''); // If 'items' is not directly a field, leave it empty
             } else {
                 let fieldValue = data[column] || data.items[column] || ''; // Default to empty string if not present
+                fieldValue = fieldValue.replace(/,/g, "")
                 row.push(fieldValue);
             }
         })
