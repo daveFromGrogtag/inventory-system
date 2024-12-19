@@ -753,27 +753,6 @@ async function editInventoryValues() {
 
     // console.log(jsonObject);
 
-
-    // Object.entries(jsonObject.items).forEach(([key, value]) => {
-    //     value = parseInt(value)
-    //     if (value > 0) {
-    //         getDoc(doc(db, "inventory", key))
-    //             .then((item) => {
-    //                 let currentAvailableQuantity = item.data().availableQuantity
-    //                 let newAvailableQuantity = currentAvailableQuantity + value
-    //                 emailBodyTable += `<tr><td>${key}</td><td>${value}</td><td>${newAvailableQuantity}</td></tr>`
-    //                 updateDoc(doc(db, "inventory", key), {
-    //                     availableQuantity: newAvailableQuantity
-    //                 }).then(() => {
-    //                     // location.reload();                      
-    //                 })
-    //             })
-    //             .catch((error) => {
-    //                 console.error(error);
-    //             })
-    //     }
-    // })
-
     // Collect promises from the loop
     const updatePromises = Object.entries(jsonObject.items).map(async ([key, value]) => {
         value = parseInt(value);
