@@ -967,12 +967,14 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
                         month = String(orderTimeStamp.getMonth() + 1)
                         day = String(orderTimeStamp.getDate())
                         year = String(orderTimeStamp.getFullYear())
-                        timeStampDate = `${month}/${day}/${year}`
+                        orderTimeStamp = `${month}/${day}/${year}`
                     }
-                    fieldValue = timeStampDate
+                    fieldValue = orderTimeStamp
+                    console.log(`${fieldValue} -- ${column}`);                
                 } else {
                     fieldValue = data[column] || ''; // Default to empty string if not present
                 }
+                // console.log(`${fieldValue} -- ${column}`);                
                 fieldValue = fieldValue.replace(/,/g, "")
                 row.push(fieldValue);
             }

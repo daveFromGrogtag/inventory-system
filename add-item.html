@@ -38,28 +38,5 @@
             <button type="button" id="addItemSubmissionButton">Submit</button>
         </div>
     </form>
-    <!-- <script>
-        function saveFormAsJson() {
-            const form = document.getElementById('myForm');
-            const formData = new FormData(form);
-            const jsonObject = {
-                items: {} // Initialize the nested object
-            };
-    
-            formData.forEach((value, key) => {
-                // Check if the key starts with 'items['
-                if (key.startsWith('items[')) {
-                    const itemKey = key.replace('items[', '').replace(']', '');
-                    jsonObject.items[itemKey] = value; // Add to nested object
-                } else {
-                    jsonObject[key] = value; // Add to the main object
-                }
-            });
-    
-            const jsonString = JSON.stringify(jsonObject);
-            console.log(jsonString); // Output the JSON string
-            // You can replace this with code to save the JSON or send it to a server
-        }
-    </script> -->
 </body>
 </html>
