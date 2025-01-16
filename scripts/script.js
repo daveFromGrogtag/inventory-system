@@ -199,8 +199,12 @@ function placeOrder() {
                     if (value > 0) {
                         getDoc(doc(db, "inventory", key))
                             .then((item) => {
+                                let lowQtyTrigger = item.data().lowQtyTrigger?item.data().lowQtyTrigger:0
                                 let currentAvailableQuantity = item.data().availableQuantity
                                 let newAvailableQuantity = currentAvailableQuantity - value
+                                if (newAvailableQuantity <= lowQtyTrigger) {
+                                    createQuantityNotification(item.data().name, item.data().sku, newAvailableQuantity, lowQtyTrigger)
+                                }
                                 updateDoc(doc(db, "inventory", key), {
                                     availableQuantity: newAvailableQuantity
                                 }).then(() => {
@@ -231,7 +235,9 @@ function viewOrder() {
                 let orderHtml = `<b>Visit Id:</b> ${order.data().visitId}<br>
 <b>Location Id:</b> ${order.data().locationId}<br>
 <b>Apple Ticket Number:</b> ${order.data().appleTicketNumber}<br>
+${order.data().notes ? "<b>Notes:</b> " + order.data().notes : ""}
 <br>
+<hr>x
 <b>Rep Email:</b> ${order.data().repEmail}<br>
 <b>Employee Name:</b> ${order.data().employeeName}<br>
 <b>Address:</b> ${order.data().address}<br>
@@ -518,6 +524,7 @@ function populateInventoryPage() {
                 <td>${item.data().location}</td>
                 <td>${item.data().binNumber}</td>
                 <td>${item.data().availableQuantity}</td>
+                <td>${item.data().lowQtyTrigger?item.data().lowQtyTrigger:"-"}</td>
                 </tr>`
                     inventoryList += itemRow
 
@@ -874,7 +881,7 @@ function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
     try {
         addDoc(collection(db, "mail"), {
             to: recipientEmail,
-            cc: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
+            // cc: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
             bcc: "orders@grogtag.com",
             message: {
                 subject: subjectLine,
@@ -889,9 +896,82 @@ function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
     }
 }
 
-function createQuantityNotification() {
+function createQuantityNotification(itemName, itemSku, currentInventory, lowQtyTrigger) {
+    let subjectLine = `Item ${itemName} - ${itemSku} has fallen below reorder point.`
+    let htmlMessage = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Item ${itemName} - ${itemSku} low inventory</h1>
+        <p>Hello,</p>
+        <p>Item ${itemName} - ${itemSku} has fallen below the reorder point of ${lowQtyTrigger}.</p>
+        <p>There are currently ${currentInventory} available for order.
+        
+        <p class="footer">If you have any questions about your order, please contact us at support@grogtag.com.</p>
+        <p class="footer">Thank you for ordering from us!</p>
+    </div>
+</body>
+</html>`
+    console.log("Creating Notification Email...");
+    try {
+        addDoc(collection(db, "mail"), {
+            to: "dave@grogtag.com",
+            // to: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
+            bcc: "orders@grogtag.com",
+            message: {
+                subject: subjectLine,
+                html: htmlMessage
+            }
+        }).then(() => {
+            console.log("Low Inventory Message Sent");
+        })
 
+    } catch (error) {
+        console.error(error);
+    }
 }
+
 
 function getCurrentDateWithRandomNumber() {
     const today = new Date();
@@ -922,7 +1002,7 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
         return;
     }
 
-    const staticColumns = ["mainOrderId", "appleTicketNumber", "visitId", "locationId", "retailer", "employeeName", "repEmail", "address", "city", "state", "zipCode", "createdOn", "shippedOn", "trackingNumber", "discountedUspRate", "publishedUpsRate", "orderStatus"]
+    const staticColumns = ["mainOrderId", "appleTicketNumber", "visitId", "locationId", "retailer", "notes", "employeeName", "repEmail", "address", "city", "state", "zipCode", "createdOn", "shippedOn", "trackingNumber", "discountedUspRate", "publishedUpsRate", "orderStatus"]
     // Prepare dynamic columns and data
     let columns = new Set(); // To store unique column names
     let dataRows = [];
