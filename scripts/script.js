@@ -881,7 +881,7 @@ function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
     try {
         addDoc(collection(db, "mail"), {
             to: recipientEmail,
-            // cc: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
+            cc: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
             bcc: "orders@grogtag.com",
             message: {
                 subject: subjectLine,
@@ -956,8 +956,7 @@ function createQuantityNotification(itemName, itemSku, currentInventory, lowQtyT
     console.log("Creating Notification Email...");
     try {
         addDoc(collection(db, "mail"), {
-            to: "dave@grogtag.com",
-            // to: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
+            to: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
             bcc: "orders@grogtag.com",
             message: {
                 subject: subjectLine,
