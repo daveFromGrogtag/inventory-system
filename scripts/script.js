@@ -237,7 +237,7 @@ function viewOrder() {
 <b>Apple Ticket Number:</b> ${order.data().appleTicketNumber}<br>
 ${order.data().notes ? "<b>Notes:</b> " + order.data().notes : ""}
 <br>
-<hr>x
+<hr>
 <b>Rep Email:</b> ${order.data().repEmail}<br>
 <b>Employee Name:</b> ${order.data().employeeName}<br>
 <b>Address:</b> ${order.data().address}<br>
