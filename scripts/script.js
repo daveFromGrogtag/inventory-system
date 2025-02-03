@@ -1188,10 +1188,13 @@ async function generateUsageByDateCSV(collectionName, startDate, endDate) {
     const inventorySnapshot = await getDocs(query(collection(db, "inventory")))
     // console.log(querySnapshot);
     let allItems = {}
+    let itemNames = {}
     inventorySnapshot.forEach(item => {
         allItems[item.data().sku] = 0
+        itemNames[item.data().sku] = item.data().name
     })
-
+    
+    
     console.log(allItems);
 
     // Check if documents were retrieved
@@ -1210,9 +1213,9 @@ async function generateUsageByDateCSV(collectionName, startDate, endDate) {
             allItems[itemKey] += parseInt(orderItems[itemKey])
         })
     })
-    let csvContent = "sku,usage\n"
+    let csvContent = "sku,name,usage\n"
     Object.keys(allItems).forEach(itemKey => {
-        csvContent += `${itemKey},${allItems[itemKey]}\n`
+        csvContent += `${itemKey},${itemNames[itemKey]},${allItems[itemKey]}\n`
     })
 
     // Create a Blob and trigger download
