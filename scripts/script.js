@@ -1124,8 +1124,10 @@ async function generateUsageByRetailerCSV(collectionName, startDate, endDate) {
     const inventorySnapshot = await getDocs(query(collection(db, "inventory")))
     // console.log(querySnapshot);
     let allItems = []
+    let itemNames = {}
     inventorySnapshot.forEach(item => {
         allItems.push(item.data().sku)
+        itemNames[item.data().sku] = item.data().name
     })
 
     let retailerList = [
@@ -1155,6 +1157,7 @@ async function generateUsageByRetailerCSV(collectionName, startDate, endDate) {
         alert("No documents found in the specified range.");
         return;
     }
+    retailerOrderData["item-name"] = itemNames
 
     querySnapshot.forEach(order => {
         // const aidn = order.data().appleTicketNumber
@@ -1167,7 +1170,7 @@ async function generateUsageByRetailerCSV(collectionName, startDate, endDate) {
             }
             retailerOrderData[orderRetailer][itemKey] += parseInt(orderItems[itemKey])
         })
-    })
+    })   
     const csvContent = objectToCSV(retailerOrderData)
 
     // Create a Blob and trigger download
@@ -1225,6 +1228,8 @@ async function generateUsageByDateCSV(collectionName, startDate, endDate) {
     link.download = `part_usage_${startDate.toISOString()}_to_${endDate.toISOString()}.csv`;
     link.click();
 }
+
+
 
 
 // - - - - - - - - - - - - - - - - //
