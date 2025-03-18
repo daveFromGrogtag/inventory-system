@@ -634,6 +634,15 @@ function generateReport() {
             console.error(error)
         }
     }
+    // Shipping Report
+    if (reportType == "shipping-report") {
+        try {
+            console.log("Shipping Report Generating");
+            generateShippingCSV("orders")
+        } catch (error) {
+            console.error(error)
+        }
+    }
     else {
         console.log("No report selected");
 
@@ -1227,6 +1236,31 @@ async function generateUsageByDateCSV(collectionName, startDate, endDate) {
     link.href = URL.createObjectURL(blob);
     link.download = `part_usage_${startDate.toISOString()}_to_${endDate.toISOString()}.csv`;
     link.click();
+}
+
+async function generateShippingCSV(collectionName) {
+        // Query Firestore for documents with timestamps within the range
+        const querySnapshot = await getDocs(query(collection(db, collectionName), where("orderStatus", "==", "placed")))
+
+        if (querySnapshot.empty) {
+            alert("No documents found in the specified range.");
+            return;
+        }
+        let csvHeader = "reference,serviceType,shipmentType,invoiceNumber,poNumber,senderContactName,senderCompany,senderContactNumber,senderLine1,senderPostcode,senderCity,senderState,senderCountry,recipientContactName,recipientContactNumber,recipientLine1,recipientPostcode,recipientCity,recipientState,recipientCountry,recipientResidential,numberOfPackages,packageWeight,weightUnits,length,width,height,packageType,currencyType\n"
+        let csvContent = csvHeader
+
+        querySnapshot.forEach(row => {
+            const data = row.data()
+            let csvRow = `${data.mainOrderId.replace(/,/g, "")},PRIORITY_OVERNIGHT,OUTBOUND,,SBF,Pangaea Print,Pangaea Print,9162028522,1479 Shore Street,95691,WEST SACRAMENTO,CA,US,${data.employeeName.replace(/,/g, "")},9162028522,${data.address.replace(/,/g, "")},"${data.zipCode}",${data.city.replace(/,/g, "")},${data.state},US,Y,1,1,LBS,9,7,3,YOUR_PACKAGING,USD\n`
+            csvContent = csvContent + csvRow
+        })
+    
+        // Create a Blob and trigger download
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${collectionName}_data_shipping_report.csv`;
+        link.click();
 }
 
 
