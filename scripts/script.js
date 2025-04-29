@@ -905,6 +905,26 @@ function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
     }
 }
 
+function testEmailNotification() {
+    console.log("Testing Notification Email...");
+    try {
+        addDoc(collection(db, "mail"), {
+            to: "dave@grogtag.com",
+            cc: "davebloisesquire@gmail.com",
+            bcc: "orders@grogtag.com",
+            message: {
+                subject: "vector test",
+                html: "VECTOR TEST"
+            }
+        }).then(() => {
+            console.log("Test Message Sent");
+        })
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 function createQuantityNotification(itemName, itemSku, currentInventory, lowQtyTrigger) {
     let subjectLine = `Item ${itemName} - ${itemSku} has fallen below reorder point.`
     let htmlMessage = `<!DOCTYPE html>
@@ -1287,7 +1307,7 @@ if (classExists("orders-page")) {
     populateOrdersPage()
 }
 
-// - - - - - For Orders Page
+// - - - - - For Orders Admin Page
 if (classExists("orders-admin-page")) {
     populateOrdersAdminPage()
 }
@@ -1338,5 +1358,15 @@ if (classExists("edit-inventory-page")) {
     document.getElementById("applyInventoryChangesButton").addEventListener("click", (e) => {
         e.preventDefault()
         editInventoryValues()
+    })
+}
+
+// - - - - - For Admin Page
+if (classExists("admin-page")) {
+    document.getElementById("email-test-btn").addEventListener("click", (e) => {
+        e.preventDefault()
+        testEmailNotification()
+        console.log("Email sent");
+        
     })
 }
