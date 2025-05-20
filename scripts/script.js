@@ -290,6 +290,10 @@ function populateShippedOrder() {
                 document.getElementById('orderShippedButton').addEventListener('click', () => {
                     shipOrder(orderId, order.data().repEmail, orderHtml + itemList)
                 })
+
+                document.getElementById('calculateInvoicedButton').addEventListener('click', () => {
+                    calculateInvoicedShippingCost()
+                })
             })
     } catch (error) {
         console.error(error)
@@ -373,6 +377,12 @@ function shipOrder(orderId, recipientEmail, emailBody) {
     } catch (error) {
         console.error(error);
     }
+}
+
+function calculateInvoicedShippingCost() {
+    let publishedRate = parseFloat(document.getElementById('publishedUpsRate').value)
+    let discountedRate = publishedRate * 0.75
+    document.getElementById('discountedUspRate').value = discountedRate.toFixed(2)
 }
 
 function viewPackingList() {
@@ -845,8 +855,109 @@ async function editInventoryValues() {
     </body>
     </html>`
     createEmailNotification("dave@grogtag.com", "Vector Inventory Update", emailBody)
-
+    alert('Item qty updated')
 }
+
+async function advancedEditInventoryValues() {
+    const form = document.getElementById('myForm');
+    const formData = new FormData(form);
+    let emailBodyTable = "<tr><th>SKU</th><th>Added Qty</th><th>New Available Qty</th></tr>"
+
+    const jsonObject = {
+        items: {} // Initialize the nested object
+    };
+
+    formData.forEach((value, key) => {
+        // Check if the key starts with 'items['
+        if (key.startsWith('items[')) {
+            const itemKey = key.replace('items[', '').replace(']', '');
+            if (value != 0) {
+                jsonObject.items[itemKey] = value; // Add to nested object
+            }
+        }
+    });
+
+    // console.log(jsonObject);
+
+    // Collect promises from the loop
+    const updatePromises = Object.entries(jsonObject.items).map(async ([key, value]) => {
+        value = parseInt(value);
+        if (value != 0) {
+            try {
+                const item = await getDoc(doc(db, "inventory", key));
+                let currentAvailableQuantity = item.data().availableQuantity;
+                let newAvailableQuantity = currentAvailableQuantity + value;
+                emailBodyTable += `<tr><td>${key}</td><td>${value}</td><td>${newAvailableQuantity}</td></tr>`;
+                await updateDoc(doc(db, "inventory", key), {
+                    availableQuantity: newAvailableQuantity
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    });
+
+    // Wait for all promises to complete
+    await Promise.all(updatePromises);
+
+    const emailBody = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Inventory Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+    <body>
+    <div class="container">
+        <h1>Inventory Quantity Updated</h1>
+        <p>The inventory levels have been adjusted.</p>
+        <table>${emailBodyTable}</table>
+        <p class="footer">If you have any questions, please contact us at support@grogtag.com.</p>
+        <p class="footer">Thank you!</p>
+    </div>
+    </body>
+    </html>`
+    // createEmailNotification("dave@grogtag.com", "Vector Inventory Update", emailBody)
+    alert('Item qty updated, no email sent.')
+}
+
 
 // - - - - - - - - - - - - - //
 // - - UTILITY FUNCTIONS - - //
@@ -1008,6 +1119,21 @@ function getCurrentDateWithRandomNumber() {
     const day = String(today.getDate()).padStart(2, '0');
     const randomNumber = Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit number
     return `${year}-${month}-${day}-${randomNumber}`;
+}
+
+function imageToDataUrl(inputContainer, previewContainer) {
+    inputContainer.addEventListener("change", (event) => {
+        const file = event.target.files[0]
+        if (!file) return;
+
+        const reader = new FileReader()
+
+        reader.onload = (e) => {
+            const dataURL = e.target.result
+
+            const imgHtml = `<img src=${dataURL} style="max-width: 100px;"/>`
+        }
+    })
 }
 
 
@@ -1358,6 +1484,7 @@ if (classExists("edit-inventory-page")) {
     document.getElementById("applyInventoryChangesButton").addEventListener("click", (e) => {
         e.preventDefault()
         editInventoryValues()
+        // advancedEditInventoryValues()
     })
 }
 
