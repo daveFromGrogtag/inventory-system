@@ -1,9 +1,18 @@
-import { db } from "../firebase/init.js"
+import { db, auth } from "../firebase/init.js"
 import { setDoc, doc, query, collection, getDocs, updateDoc, getDoc, addDoc, Timestamp, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; 
 
 // - - - - - - - - - - - - //
 // - - PAGE FUNCTIONS  - - //
 // - - - - - - - - - - - - //
+
+function getCurrentUserEmail() {
+    return new Promise((resolve) => {
+        onAuthStateChanged(auth, (user) => {
+            resolve(user ? user.email : null);
+        });
+    });
+}
 
 function populateInventoryOnOrderPage() {
     console.log("Pulling items...")
@@ -431,12 +440,20 @@ function updateItem() {
         });
 
         // const jsonString = JSON.stringify(jsonObject);
-        setDoc(doc(db, "inventory", jsonObject.sku), {
-            ...jsonObject
+        updateDoc(doc(db, "inventory", jsonObject.sku), {
+            "name": jsonObject.name
         }).then(() => {
-            alert("Item saved")
+            alert("item saved")
         })
+
+
+        // setDoc(doc(db, "inventory", jsonObject.sku), {
+        //     ...jsonObject
+        // }).then(() => {
+        //     alert("Item saved")
+        // })
     } catch (error) {
+        alert("Well, that didn't work")
         console.error(error)
     }
 }
@@ -996,12 +1013,13 @@ function classExists(className) {
     return document.getElementsByClassName(className).length > 0;
 }
 
-function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
+async function createEmailNotification(recipientEmail, subjectLine, htmlMessage) {
     console.log("Creating Notification Email...");
     try {
+        const userEmail = await getCurrentUserEmail()
         addDoc(collection(db, "mail"), {
             to: recipientEmail,
-            cc: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
+            cc: ["mariya@vectorholdinggroup.com", userEmail],
             bcc: "orders@grogtag.com",
             message: {
                 subject: subjectLine,
@@ -1025,6 +1043,26 @@ function testEmailNotification() {
             bcc: "orders@grogtag.com",
             message: {
                 subject: "vector test",
+                html: "VECTOR TEST"
+            }
+        }).then(() => {
+            console.log("Test Message Sent");
+        })
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function testUserNotification() {
+    console.log("Testing Notification Email...");
+    try {
+        const userEmail = await getCurrentUserEmail()
+        addDoc(collection(db, "mail"), {
+            to: "david@pangeaeprint.com",
+            cc: ["davebloisesquire@gmail.com", userEmail],
+            message: {
+                subject: "vector test 1",
                 html: "VECTOR TEST"
             }
         }).then(() => {
@@ -1492,7 +1530,8 @@ if (classExists("edit-inventory-page")) {
 if (classExists("admin-page")) {
     document.getElementById("email-test-btn").addEventListener("click", (e) => {
         e.preventDefault()
-        testEmailNotification()
+        // testEmailNotification()
+        // testUserNotification()
         console.log("Email sent");
         
     })
