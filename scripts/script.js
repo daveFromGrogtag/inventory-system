@@ -1134,7 +1134,7 @@ function createQuantityNotification(itemName, itemSku, currentInventory, lowQtyT
     console.log("Creating Notification Email...");
     try {
         addDoc(collection(db, "mail"), {
-            to: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com"],
+            to: ["mariya@vectorholdinggroup.com", "srosen@actionlink.com", "applebreakfixtickets@bdssolutions.com"],
             bcc: "orders@grogtag.com",
             message: {
                 subject: subjectLine,
