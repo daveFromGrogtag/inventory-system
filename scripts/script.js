@@ -1,6 +1,6 @@
 import { db, auth } from "../firebase/init.js"
 import { setDoc, doc, query, collection, getDocs, updateDoc, getDoc, addDoc, Timestamp, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; 
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // - - - - - - - - - - - - //
 // - - PAGE FUNCTIONS  - - //
@@ -208,7 +208,7 @@ function placeOrder() {
                     if (value > 0) {
                         getDoc(doc(db, "inventory", key))
                             .then((item) => {
-                                let lowQtyTrigger = item.data().lowQtyTrigger?item.data().lowQtyTrigger:0
+                                let lowQtyTrigger = item.data().lowQtyTrigger ? item.data().lowQtyTrigger : 0
                                 let currentAvailableQuantity = item.data().availableQuantity
                                 let newAvailableQuantity = currentAvailableQuantity - value
                                 if (newAvailableQuantity <= lowQtyTrigger) {
@@ -551,7 +551,7 @@ function populateInventoryPage() {
                 <td>${item.data().location}</td>
                 <td>${item.data().binNumber}</td>
                 <td>${item.data().availableQuantity}</td>
-                <td>${item.data().lowQtyTrigger?item.data().lowQtyTrigger:"-"}</td>
+                <td>${item.data().lowQtyTrigger ? item.data().lowQtyTrigger : "-"}</td>
                 </tr>`
                     inventoryList += itemRow
 
@@ -975,6 +975,22 @@ async function advancedEditInventoryValues() {
     alert('Item qty updated, no email sent.')
 }
 
+async function removeReportsLink() {
+    const userEmail = await getCurrentUserEmail()
+    const regex = /.*(grogtag\.com|pangaeaprint\.com|vectorholdinggroup\.com)$/
+        if (userEmail === null) {
+            document.getElementById("reports-link").remove()
+            return
+        }
+        if (!userEmail.match(regex)) {
+            document.getElementById("reports-link").remove()
+        } else {
+            console.log(userEmail);
+            
+        }
+}
+removeReportsLink()
+
 
 // - - - - - - - - - - - - - //
 // - - UTILITY FUNCTIONS - - //
@@ -1242,7 +1258,7 @@ async function generateOrdersCSV(collectionName, startDate, endDate) {
                         orderTimeStamp = `${month}/${day}/${year}`
                     }
                     fieldValue = orderTimeStamp
-                    console.log(`${fieldValue} -- ${column}`);                
+                    console.log(`${fieldValue} -- ${column}`);
                 } else {
                     fieldValue = data[column] || ''; // Default to empty string if not present
                 }
@@ -1363,7 +1379,7 @@ async function generateUsageByRetailerCSV(collectionName, startDate, endDate) {
             }
             retailerOrderData[orderRetailer][itemKey] += parseInt(orderItems[itemKey])
         })
-    })   
+    })
     const csvContent = objectToCSV(retailerOrderData)
 
     // Create a Blob and trigger download
@@ -1389,8 +1405,8 @@ async function generateUsageByDateCSV(collectionName, startDate, endDate) {
         allItems[item.data().sku] = 0
         itemNames[item.data().sku] = item.data().name
     })
-    
-    
+
+
     console.log(allItems);
 
     // Check if documents were retrieved
@@ -1423,28 +1439,28 @@ async function generateUsageByDateCSV(collectionName, startDate, endDate) {
 }
 
 async function generateShippingCSV(collectionName) {
-        // Query Firestore for documents with timestamps within the range
-        const querySnapshot = await getDocs(query(collection(db, collectionName), where("orderStatus", "==", "placed")))
+    // Query Firestore for documents with timestamps within the range
+    const querySnapshot = await getDocs(query(collection(db, collectionName), where("orderStatus", "==", "placed")))
 
-        if (querySnapshot.empty) {
-            alert("No documents found in the specified range.");
-            return;
-        }
-        let csvHeader = "reference,serviceType,shipmentType,invoiceNumber,poNumber,senderContactName,senderCompany,senderContactNumber,senderLine1,senderPostcode,senderCity,senderState,senderCountry,recipientContactName,recipientContactNumber,recipientLine1,recipientPostcode,recipientCity,recipientState,recipientCountry,recipientResidential,numberOfPackages,packageWeight,weightUnits,length,width,height,packageType,currencyType\n"
-        let csvContent = csvHeader
+    if (querySnapshot.empty) {
+        alert("No documents found in the specified range.");
+        return;
+    }
+    let csvHeader = "reference,serviceType,shipmentType,invoiceNumber,poNumber,senderContactName,senderCompany,senderContactNumber,senderLine1,senderPostcode,senderCity,senderState,senderCountry,recipientContactName,recipientContactNumber,recipientLine1,recipientPostcode,recipientCity,recipientState,recipientCountry,recipientResidential,numberOfPackages,packageWeight,weightUnits,length,width,height,packageType,currencyType\n"
+    let csvContent = csvHeader
 
-        querySnapshot.forEach(row => {
-            const data = row.data()
-            let csvRow = `${data.mainOrderId.replace(/,/g, "")},PRIORITY_OVERNIGHT,OUTBOUND,,SBF,Pangaea Print,Pangaea Print,9162028522,1479 Shore Street,95691,WEST SACRAMENTO,CA,US,${data.employeeName.replace(/,/g, "")},9162028522,${data.address.replace(/,/g, "")},"${data.zipCode}",${data.city.replace(/,/g, "")},${data.state},US,Y,1,1,LBS,9,7,3,YOUR_PACKAGING,USD\n`
-            csvContent = csvContent + csvRow
-        })
-    
-        // Create a Blob and trigger download
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `${collectionName}_data_shipping_report.csv`;
-        link.click();
+    querySnapshot.forEach(row => {
+        const data = row.data()
+        let csvRow = `${data.mainOrderId.replace(/,/g, "")},PRIORITY_OVERNIGHT,OUTBOUND,,SBF,Pangaea Print,Pangaea Print,9162028522,1479 Shore Street,95691,WEST SACRAMENTO,CA,US,${data.employeeName.replace(/,/g, "")},9162028522,${data.address.replace(/,/g, "")},"${data.zipCode}",${data.city.replace(/,/g, "")},${data.state},US,Y,1,1,LBS,9,7,3,YOUR_PACKAGING,USD\n`
+        csvContent = csvContent + csvRow
+    })
+
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${collectionName}_data_shipping_report.csv`;
+    link.click();
 }
 
 
@@ -1510,14 +1526,20 @@ if (classExists("bulk-upload-page")) {
 
 // - - - - - For Reports Page
 if (classExists("reports-page")) {
-    document.getElementById("reportSubmitBtn").addEventListener("click", () => {
-        console.log("running reports page");
-        generateReport()
-    })
+    const userEmail = await getCurrentUserEmail()
+    const regex = /.*(grogtag\.com|pangaeaprint\.com|vectorholdinggroup\.com)$/
+    if (userEmail.match(regex)) {
+        document.getElementById("reportSubmitBtn").addEventListener("click", () => {
+            console.log("running reports page");
+            generateReport()
+        })
+    } else {
+    }
 }
 
 // - - - - - For Edit Inventory Page
 if (classExists("edit-inventory-page")) {
+
     populateEditInventoryPage()
     document.getElementById("applyInventoryChangesButton").addEventListener("click", (e) => {
         e.preventDefault()
@@ -1533,6 +1555,6 @@ if (classExists("admin-page")) {
         // testEmailNotification()
         // testUserNotification()
         console.log("Email sent");
-        
+
     })
 }
