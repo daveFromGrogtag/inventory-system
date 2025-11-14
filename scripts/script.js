@@ -979,11 +979,11 @@ async function removeReportsLink() {
     const userEmail = await getCurrentUserEmail()
     const regex = /.*(grogtag\.com|pangaeaprint\.com|vectorholdinggroup\.com)$/
         if (userEmail === null) {
-            document.getElementById("reports-link").remove()
+            document.getElementById("order-report").remove()
             return
         }
         if (!userEmail.match(regex)) {
-            document.getElementById("reports-link").remove()
+            document.getElementById("order-report").remove()
         } else {
             console.log(userEmail);
             
@@ -1526,15 +1526,11 @@ if (classExists("bulk-upload-page")) {
 
 // - - - - - For Reports Page
 if (classExists("reports-page")) {
-    const userEmail = await getCurrentUserEmail()
-    const regex = /.*(grogtag\.com|pangaeaprint\.com|vectorholdinggroup\.com)$/
-    if (userEmail.match(regex)) {
         document.getElementById("reportSubmitBtn").addEventListener("click", () => {
             console.log("running reports page");
             generateReport()
         })
-    } else {
-    }
+
 }
 
 // - - - - - For Edit Inventory Page
